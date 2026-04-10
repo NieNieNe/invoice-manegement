@@ -1,24 +1,27 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  FileText, 
-  Users, 
   CreditCard, 
-  BarChart3, 
-  Settings, 
-  ReceiptText
+  ReceiptText,
+  LogOut
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const ACCESS_TOKEN_KEY = 'accessToken';
 
   const menuItems = [
     { name: 'Đơn Hàng', icon: <LayoutDashboard size={20} />, path: '/invoices' },
     { name: 'Phiếu Báo Nợ', icon: <ReceiptText size={20} />, path: '/record-bill' },
     { name: 'Hóa Đơn Thanh Toán', icon: <CreditCard size={20} />, path: '/payments' },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">
@@ -48,6 +51,16 @@ const Sidebar = ({ children }) => {
             );
           })}
         </nav>
+
+        <div className="px-4 pb-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all text-sm font-medium text-gray-300 hover:bg-red-500/20 hover:text-red-200"
+          >
+            <LogOut size={20} />
+            Đăng xuất
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">

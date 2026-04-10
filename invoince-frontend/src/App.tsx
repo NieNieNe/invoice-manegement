@@ -1,38 +1,50 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './Component/Sidebar'; 
-import ItemDetailsForm from './form_checkout/checkout';
-import PaymentQueue from './Confirm_Payment/confirm_payment';
-import RecordBill from './RecordBill/RecordBill';
-import Login from './Login/login'; 
+﻿import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import Sidebar from './Component/Sidebar'
+import ItemDetailsForm from './form_checkout/checkout'
+import PaymentQueue from './Confirm_Payment/confirm_payment'
+import RecordBill from './RecordBill/RecordBill'
+import Login from './Login/login'
+
+const ACCESS_TOKEN_KEY = 'accessToken'
+
+const isAuthenticated = (): boolean => {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY)
+  return Boolean(token && token.trim())
+}
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        
-        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/login"
+          element={isAuthenticated() ? <Navigate to="/invoices" replace /> : <Login />}
+        />
 
         <Route
           path="/*"
           element={
-            <Sidebar>
-              <Routes>
-                <Route path="/" element={<Navigate to="/invoices" replace />} />
-                
-                <Route path="/invoices" element={<ItemDetailsForm />} />
-                <Route path="/payments" element={<PaymentQueue />} />
-                <Route path="/record-bill" element={<RecordBill />} />
-                <Route path="/dashboard" element={<div className="p-8">Dashboard Page</div>} />
-                
-                <Route path="*" element={<div className="p-8">404 - Không tìm thấy trang</div>} />
-              </Routes>
-            </Sidebar>
+            isAuthenticated() ? (
+              <Sidebar>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/invoices" replace />} />
+                  <Route path="/invoices" element={<ItemDetailsForm />} />
+                  <Route path="/payments" element={<PaymentQueue />} />
+                  <Route path="/record-bill" element={<RecordBill />} />
+                  <Route path="/dashboard" element={<div className="p-8">Dashboard Page</div>} />
+                  <Route path="*" element={<div className="p-8">404 - Page not found</div>} />
+                </Routes>
+              </Sidebar>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>
     </Router>
-  );
+  )
 }
 
-export default App;
+export default App
