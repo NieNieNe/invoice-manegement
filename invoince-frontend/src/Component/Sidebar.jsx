@@ -15,7 +15,7 @@ const Sidebar = ({ children }) => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { name: 'Đơn Hàng', icon: <LayoutDashboard size={20} />, path: '/' },
+    { name: 'Đơn Hàng', icon: <LayoutDashboard size={20} />, path: '/invoices' },
     { name: 'Phiếu Báo Nợ', icon: <ReceiptText size={20} />, path: '/record-bill' },
     { name: 'Hóa Đơn Thanh Toán', icon: <CreditCard size={20} />, path: '/payments' },
   ];

@@ -3,28 +3,34 @@ import Sidebar from './Component/Sidebar';
 import ItemDetailsForm from './form_checkout/checkout';
 import PaymentQueue from './Confirm_Payment/confirm_payment';
 import RecordBill from './RecordBill/RecordBill';
-
-const Dashboard = () => <div className="p-8 font-bold text-2xl">Dashboard Page</div>;
+import Login from './Login/login'; 
 
 function App() {
   return (
     <Router>
-      {}
-      <Sidebar>
-        <Routes>
-          <Route path="/" element={<Navigate to="/invoices" />} />
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         
-          <Route path="/invoices" element={<ItemDetailsForm />} />
-          
-          <Route path="/payments" element={<PaymentQueue />} />
-          
-          <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
 
-          <Route path="/record-bill" element={<RecordBill />} />
-          
-          <Route path="*" element={<div className="p-8">404 - Page Not Found</div>} />
-        </Routes>
-      </Sidebar>
+        <Route
+          path="/*"
+          element={
+            <Sidebar>
+              <Routes>
+                <Route path="/" element={<Navigate to="/invoices" replace />} />
+                
+                <Route path="/invoices" element={<ItemDetailsForm />} />
+                <Route path="/payments" element={<PaymentQueue />} />
+                <Route path="/record-bill" element={<RecordBill />} />
+                <Route path="/dashboard" element={<div className="p-8">Dashboard Page</div>} />
+                
+                <Route path="*" element={<div className="p-8">404 - Không tìm thấy trang</div>} />
+              </Routes>
+            </Sidebar>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
