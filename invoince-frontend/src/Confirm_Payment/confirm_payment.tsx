@@ -254,9 +254,9 @@ const PaymentQueue = () => {
                     onChange={(e) => setEditingItem({ ...editingItem, invoiceStatus: e.target.value })}
                     className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none appearance-none font-semibold cursor-pointer"
                   >
-                    <option value="Awaiting Payment">Awaiting Payment (Cho duyet)</option>
-                    <option value="Completed/Invoiced">Completed/Invoiced (Da thanh toan)</option>
-                    <option value="Cancelled">Cancelled (Huy bo)</option>
+                    <option value="Awaiting Payment">Awaiting Payment (Chờ duyệt)</option>
+                    <option value="Completed/Invoiced">Completed/Invoiced (Đã thanh toán)</option>
+                    <option value="Cancelled">Cancelled (Hủy bỏ)</option>
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
                 </div>
