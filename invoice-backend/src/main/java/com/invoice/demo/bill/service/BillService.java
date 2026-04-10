@@ -3,6 +3,7 @@ package com.invoice.demo.bill.service;
 import com.invoice.demo.bill.dto.BillListResponse;
 import com.invoice.demo.bill.dto.CreateBillRequest;
 import com.invoice.demo.bill.dto.CreateBillResponse;
+import com.invoice.demo.bill.dto.UpdateBillRequest;
 import com.invoice.demo.bill.entity.Bill;
 import com.invoice.demo.bill.repository.BillRepository;
 import com.invoice.demo.purchaseRequest.entity.PurchaseRequest;
@@ -100,6 +101,22 @@ public class BillService {
             purchaseRequest.setStatus(PurchaseRequestService.STATUS_OPEN);
             purchaseRequestRepository.save(purchaseRequest);
         }
+    }
+
+    @Transactional
+    public BillListResponse updateBill(Long billId, UpdateBillRequest request) {
+        Bill bill = billRepository.findById(billId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bill not found"));
+
+        PurchaseRequest purchaseRequest = bill.getPurchaseRequest();
+        purchaseRequest.setCustomerName(request.customerName().trim());
+        purchaseRequest.setStatus(request.invoiceStatus().trim());
+        purchaseRequestRepository.save(purchaseRequest);
+
+        bill.setTotalAmount(request.totalAmount());
+        Bill updated = billRepository.save(bill);
+
+        return toListResponse(updated);
     }
 
     private BillListResponse toListResponse(Bill bill) {
