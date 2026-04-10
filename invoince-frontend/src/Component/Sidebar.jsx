@@ -20,7 +20,7 @@ const Sidebar = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
-    navigate('/login', { replace: true });
+    window.location.href = '/login';
   };
 
   return (
