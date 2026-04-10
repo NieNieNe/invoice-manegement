@@ -165,6 +165,23 @@ const confirmPaidReal = async (invoiceId: number): Promise<ConfirmPaidResponse> 
   }
 }
 
+const deleteBillReal = async (billId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/bills/${billId}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    let errorMessage = `Real API failed (${response.status})`
+    try {
+      const errorBody = (await response.json()) as { message?: string; error?: string }
+      errorMessage = errorBody.message ?? errorBody.error ?? errorMessage
+    } catch {
+      // keep default message when response is not JSON
+    }
+    throw new Error(errorMessage)
+  }
+}
+
 export const createPurchaseRequest = async (
   payload: CreatePurchaseRequestPayload,
 ): Promise<PurchaseRequestResponse> => {
@@ -197,4 +214,8 @@ export const createBill = async (payload: CreateBillPayload): Promise<CreateBill
 
 export const confirmPaid = async (invoiceId: number): Promise<ConfirmPaidResponse> => {
   return confirmPaidReal(invoiceId)
+}
+
+export const deleteBill = async (billId: number): Promise<void> => {
+  return deleteBillReal(billId)
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Pencil, Trash2, X, AlertCircle } from 'lucide-react'
-import { confirmPaid, getApiMode, getBills } from '../api/purchaseRequestApi'
+import { confirmPaid, deleteBill, getApiMode, getBills } from '../api/purchaseRequestApi'
 import type { BillItem } from '../mocks/purchaseRequestMockApi'
 
 // Format tiền tệ VNĐ
@@ -19,6 +19,8 @@ const PaymentQueue = () => {
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [confirmingInvoiceIds, setConfirmingInvoiceIds] = useState<number[]>([])
+  const [deletingBillIds, setDeletingBillIds] = useState<number[]>([])
+  const [deletingItem, setDeletingItem] = useState<BillItem | null>(null)
 
   // State cho Modal Chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -59,6 +61,39 @@ const PaymentQueue = () => {
     } finally {
       setConfirmingInvoiceIds((prev) => prev.filter((id) => id !== invoiceId))
     }
+  }
+
+  const handleDeleteBill = async (billId: number) => {
+    setErrorMessage('')
+    setDeletingBillIds((prev) => [...prev, billId])
+
+    try {
+      await deleteBill(billId)
+      setPayments((prev) => prev.filter((item) => item.id !== billId))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Khong the xoa hoa don. Vui long thu lai.'
+      setErrorMessage(message)
+    } finally {
+      setDeletingBillIds((prev) => prev.filter((id) => id !== billId))
+    }
+  }
+
+  const openDeleteModal = (item: BillItem) => {
+    setDeletingItem(item)
+  }
+
+  const closeDeleteModal = () => {
+    if (deletingItem && deletingBillIds.includes(deletingItem.id)) {
+      return
+    }
+    setDeletingItem(null)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingItem) return
+    const billId = deletingItem.id
+    await handleDeleteBill(billId)
+    setDeletingItem(null)
   }
 
   // Hàm mở modal chỉnh sửa
@@ -143,20 +178,22 @@ const PaymentQueue = () => {
                         item.invoiceStatus !== 'Awaiting Payment' ||
                         confirmingInvoiceIds.includes(item.invoiceId)
                       }
-                      className="bg-[#0f172a] text-white text-[10px] font-bold py-2 px-4 rounded-lg hover:bg-black transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="bg-[#0f172a] text-white text-[10px] font-bold py-2 px-4 rounded-lg hover:bg-black transition-colors uppercase cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {confirmingInvoiceIds.includes(item.invoiceId) ? 'Đang xác nhận...' : 'Xác nhận'}
                     </button>
 
                     <button 
                       onClick={() => openEditModal(item)}
-                      className="p-2 hover:bg-blue-100/30 rounded-full text-[#1a2b4b] transition-colors"
+                      className="p-2 hover:bg-blue-100/30 rounded-full text-[#1a2b4b] transition-colors cursor-pointer"
                       title="Sửa"
                     >
                       <Pencil size={18} />
                     </button>
                     <button 
-                      className="p-2 hover:bg-red-100/30 rounded-full text-red-700 transition-colors"
+                      onClick={() => openDeleteModal(item)}
+                      disabled={deletingBillIds.includes(item.id)}
+                      className="p-2 hover:bg-red-100/30 rounded-full text-red-700 transition-colors cursor-pointer disabled:cursor-not-allowed"
                       title="Xóa"
                     >
                       <Trash2 size={18} />
@@ -224,15 +261,56 @@ const PaymentQueue = () => {
             <div className="p-6 bg-gray-50 flex gap-4">
               <button 
                 onClick={() => setIsEditModalOpen(false)}
-                className="flex-1 py-4 font-bold text-gray-500 hover:bg-gray-200 rounded-2xl transition-all"
+                className="flex-1 py-4 font-bold text-gray-500 hover:bg-gray-200 rounded-2xl transition-all cursor-pointer"
               >
                 HỦY
               </button>
               <button 
                 onClick={handleSaveEdit}
-                className="flex-1 py-4 bg-[#0f172a] text-white font-bold rounded-2xl hover:bg-black shadow-lg shadow-blue-900/20 transition-all"
+                className="flex-1 py-4 bg-[#0f172a] text-white font-bold rounded-2xl hover:bg-black shadow-lg shadow-blue-900/20 transition-all cursor-pointer"
               >
                 LƯU THÔNG TIN
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- POPUP XÁC NHẬN XÓA --- */}
+      {deletingItem && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+              <h2 className="text-xl font-black text-[#0f172a] uppercase tracking-tight">Xác nhận xóa bill</h2>
+              <button onClick={closeDeleteModal} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-8">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Bạn có chắc muốn xóa bill{' '}
+                <span className="font-black text-[#0f172a]">{deletingItem.invoiceNumber}</span>?
+              </p>
+              <p className="text-xs text-gray-500 mt-3">
+                Hành động này sẽ xóa bill khỏi danh sách thanh toán.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gray-50 flex gap-4">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deletingBillIds.includes(deletingItem.id)}
+                className="flex-1 py-4 font-bold text-gray-500 hover:bg-gray-200 rounded-2xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                HỦY
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deletingBillIds.includes(deletingItem.id)}
+                className="flex-1 py-4 bg-red-700 text-white font-bold rounded-2xl hover:bg-red-800 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deletingBillIds.includes(deletingItem.id) ? 'ĐANG XÓA...' : 'XÓA BILL'}
               </button>
             </div>
           </div>

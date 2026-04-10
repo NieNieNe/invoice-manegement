@@ -82,6 +82,26 @@ public class BillService {
         );
     }
 
+    @Transactional
+    public void deleteBill(Long billId) {
+        Bill bill = billRepository.findById(billId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bill not found"));
+
+        PurchaseRequest purchaseRequest = bill.getPurchaseRequest();
+        boolean shouldResetStatus = PurchaseRequestService.STATUS_AWAITING_PAYMENT.equals(purchaseRequest.getStatus());
+
+        // Keep both sides of the relation consistent before deleting to avoid transient reference issues.
+        purchaseRequest.setBill(null);
+        bill.setPurchaseRequest(null);
+        deleteAttachmentIfExists(bill.getAttachmentPath());
+        billRepository.delete(bill);
+
+        if (shouldResetStatus) {
+            purchaseRequest.setStatus(PurchaseRequestService.STATUS_OPEN);
+            purchaseRequestRepository.save(purchaseRequest);
+        }
+    }
+
     private BillListResponse toListResponse(Bill bill) {
         PurchaseRequest purchaseRequest = bill.getPurchaseRequest();
         return new BillListResponse(
@@ -125,6 +145,24 @@ public class BillService {
             return new StoredAttachment(safeFilename, storedFilename);
         } catch (IOException exception) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot save attachment", exception);
+        }
+    }
+
+    private void deleteAttachmentIfExists(String attachmentPath) {
+        if (attachmentPath == null || attachmentPath.isBlank()) {
+            return;
+        }
+
+        Path uploadRoot = Paths.get(billUploadDir).toAbsolutePath().normalize();
+        Path target = uploadRoot.resolve(attachmentPath).normalize();
+        if (!target.startsWith(uploadRoot)) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException exception) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot delete attachment", exception);
         }
     }
 
