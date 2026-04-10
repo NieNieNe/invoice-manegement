@@ -21,3 +21,6 @@ spring:
 app:
   storage:
     bill-dir: ${BILL_UPLOAD_DIR:uploads/bills}
+  jwt:
+    secret: ${JWT_SECRET:invoice-management-super-secret-key-please-change-this-32bytes-min}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
