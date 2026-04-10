@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Lock, User, ArrowRight } from 'lucide-react'
 import { ACCESS_TOKEN_KEY, loginApi } from '../api/authApi'
 
@@ -7,6 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

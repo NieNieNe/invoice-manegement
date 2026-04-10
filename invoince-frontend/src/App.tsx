@@ -20,30 +20,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register/>} />
-
         <Route
           path="/login"
           element={isAuthenticated() ? <Navigate to="/invoices" replace /> : <Login />}
         />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/*"
           element={
-            <Sidebar>
-              <Routes>
-                <Route path="/" element={<Navigate to="/invoices" replace />} />
-                
-                <Route path="/invoices" element={<ItemDetailsForm />} />
-                <Route path="/payments" element={<PaymentQueue />} />
-                <Route path="/record-bill" element={<RecordBill />} />
-                <Route path="/dashboard" element={<div className="p-8">Dashboard Page</div>} />
-              
-                
-                <Route path="*" element={<div className="p-8">404 - Không tìm thấy trang</div>} />
-              </Routes>
-            </Sidebar>
             isAuthenticated() ? (
               <Sidebar>
                 <Routes>
