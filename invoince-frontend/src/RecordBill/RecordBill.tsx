@@ -89,7 +89,7 @@ const RecordBill = () => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-10">
           <h1 className="text-4xl font-black text-[#0f172a] mb-2 tracking-tighter">
-            Ghi nhận Hóa đơn phải trả
+            GHI NHẬN HÓA ĐƠN PHẢI TRẢ
           </h1>
           <p className="text-gray-600 text-lg">
             Liên kết hóa đơn vật lý với yêu cầu mua hàng hiện có để đối chiếu.
