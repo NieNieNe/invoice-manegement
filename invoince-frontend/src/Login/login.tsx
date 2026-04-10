@@ -94,6 +94,17 @@ const Login = () => {
               {isSubmitting ? 'SIGNING IN...' : 'SIGN IN'}
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
+            
+            <div className="text-center">
+            <p className="text-sm text-gray-500 font-medium">
+              Chưa có tài khoản?{' '}
+              <button 
+                type="button"
+                onClick={() => navigate('/register')} 
+                className="text-[#0f172a] font-extrabold hover:underline cursor-pointer">Đăng ký 
+              </button>
+            </p>
+          </div>
           </form>
         </div>
       </div>
