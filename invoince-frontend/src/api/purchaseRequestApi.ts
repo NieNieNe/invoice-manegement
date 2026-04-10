@@ -6,6 +6,7 @@
   type CreatePurchaseRequestPayload,
   type InvoiceItem,
   type PurchaseRequestResponse,
+  type UpdateBillPayload,
 } from '../mocks/purchaseRequestMockApi'
 
 type ApiMode = 'real'
@@ -221,6 +222,31 @@ const deleteBillReal = async (billId: number): Promise<void> => {
   }
 }
 
+const updateBillReal = async (billId: number, payload: UpdateBillPayload): Promise<BillItem> => {
+  const response = await fetch(`${API_BASE_URL}/api/bills/${billId}`, {
+    method: 'PATCH',
+    headers: {
+      ...buildAuthHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    handleUnauthorized(response.status)
+    let errorMessage = `Real API failed (${response.status})`
+    try {
+      const errorBody = (await response.json()) as { message?: string; error?: string }
+      errorMessage = errorBody.message ?? errorBody.error ?? errorMessage
+    } catch {
+      // keep default message when response is not JSON
+    }
+    throw new Error(errorMessage)
+  }
+
+  return (await response.json()) as BillItem
+}
+
 export const createPurchaseRequest = async (
   payload: CreatePurchaseRequestPayload,
 ): Promise<PurchaseRequestResponse> => {
@@ -257,5 +283,9 @@ export const confirmPaid = async (invoiceId: number): Promise<ConfirmPaidRespons
 
 export const deleteBill = async (billId: number): Promise<void> => {
   return deleteBillReal(billId)
+}
+
+export const updateBill = async (billId: number, payload: UpdateBillPayload): Promise<BillItem> => {
+  return updateBillReal(billId, payload)
 }
 

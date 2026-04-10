@@ -45,6 +45,11 @@ export type CreateBillPayload = {
 }
 
 export type CreateBillResponse = BillItem
+export type UpdateBillPayload = {
+  customerName: string
+  totalAmount: number
+  invoiceStatus: string
+}
 export type ConfirmPaidResponse = {
   id: number
   status: string

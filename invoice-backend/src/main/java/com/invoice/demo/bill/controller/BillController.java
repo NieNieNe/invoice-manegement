@@ -3,6 +3,7 @@ package com.invoice.demo.bill.controller;
 import com.invoice.demo.bill.dto.BillListResponse;
 import com.invoice.demo.bill.dto.CreateBillRequest;
 import com.invoice.demo.bill.dto.CreateBillResponse;
+import com.invoice.demo.bill.dto.UpdateBillRequest;
 import com.invoice.demo.bill.service.BillService;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,6 +49,11 @@ public class BillController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBill(@PathVariable Long id) {
         billService.deleteBill(id);
+    }
+
+    @PatchMapping("/{id}")
+    public BillListResponse updateBill(@PathVariable Long id, @Valid @RequestBody UpdateBillRequest request) {
+        return billService.updateBill(id, request);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
